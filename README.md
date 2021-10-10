@@ -8,4 +8,4 @@
 - More to come soon!
 
 
-#### UI Built on PyDracula by Wanderson[https://github.com/Wanderson-Magalhaes]
+#### UI Built on PyDracula by [Wanderson](https://github.com/Wanderson-Magalhaes)
