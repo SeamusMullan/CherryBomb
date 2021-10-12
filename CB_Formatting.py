@@ -59,22 +59,25 @@ class C:
 # Functions for dealing with error formatting
 
 def returnError(error):
-    print(C.FAIL + "ERROR: " + C.ENDC + "\n" + C.WARNING + error + C.ENDC)
+    print(C.FAIL + "ERROR: " + C.ENDC + "\n" + C.WARNING + str(error) + C.ENDC)
 
 def returnWarning(warning):
-    print(C.WARNING + "WARNING: " + C.ENDC + "\n" + C.WARNING + warning + C.ENDC)
+    print(C.WARNING + "WARNING: " + C.ENDC + "\n" + C.WARNING + str(warning) + C.ENDC)
 
 def returnInfo(info):
-    print(C.OKBLUE + "INFO: " + C.ENDC + "\n" + C.OKBLUE + info + C.ENDC)
+    print(C.OKBLUE + "INFO: " + C.ENDC + "\n" + C.OKBLUE + str(info) + C.ENDC)
 
 def saveErrorLog(error):
     if not os.path.exists("Error Logs\\"):
         os.makedirs("Error Logs\\")
 
-    with open(f"Error Logs\\Log-{datetime.datetime}-CherryBomb.txt", "w") as errorLog:
-        errorLog.write(error + "\n")
-        errorLog.close()
+    time = datetime.datetime.now().strftime("%d-%m-%Y_%H_%M_%S")
+    filename = f"Log_{time}_CherryBomb.txt"
+    fullFilePath = "Error Logs\\" + filename
 
+    with open(fullFilePath, "w") as errorLog:
+        errorLog.write(str(error) + "\n")
+        errorLog.close()
 
 # BIG PARAGRAPH OF TEXT
 def returnTwintInfo():

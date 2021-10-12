@@ -5,8 +5,8 @@ import os
 import time
 import random
 
-import CB_Functions as cbf
-
+import CB_Formatting as cbf
+import importFirefoxInstagramCookies as ific
 
 
 
@@ -14,20 +14,29 @@ import CB_Functions as cbf
 # Instaloader #######################################################################################################
 
 def IL_Login(username, password):
-    IL = il.Instaloader()
+    tries = 0
+    errors = ""
+
     try:
-        IL.login(username, password)
+        IL = il.Instaloader()
+        IL.load_session_from_file(username)
         return IL
     except Exception as e:
-        cbf.returnError(e)
-        cbf.saveErrorLog(e)
+        while tries < 3:
+            try:
+                if tries > 0:
+                    ific.main()
+                IL = il.Instaloader()
+                IL.login(username, password)
+                IL.save_session_to_file(username)
+                return IL
+            except Exception as e:
+                errors += f"{e}\n"
+                tries += 1
+                time.sleep(random.randint(1, 3))
+        cbf.returnError(errors)
+        cbf.saveErrorLog(errors)
         return False
-
-
-def IL_FromFile(username):
-    IL = il.Instaloader()
-    IL.load_session_from_file(username)
-    return IL
 
 
 def IL_GetProfile(IL, profile):
@@ -40,9 +49,10 @@ def IL_GetProfile(IL, profile):
         return False
 
 
-def IL_GetProfileFollowers(profile):
+def IL_GetProfileFollowers(IL, profile):
     try:
-        followers = profile.get_followers()
+        target = IL_GetProfile(IL, profile)
+        followers = target.get_followers()
         return followers
     except Exception as e:
         cbf.returnError(e)
@@ -50,7 +60,7 @@ def IL_GetProfileFollowers(profile):
         return False
 
 
-def IL_GetProfileFollowing(profile):
+def IL_GetProfileFollowing(IL, profile):
     try:
         following = profile.get_followees()
         return following
@@ -60,33 +70,82 @@ def IL_GetProfileFollowing(profile):
         return False
 
 
-def IL_GetProfilePosts(profile):
+def IL_GetProfilePosts(IL, profile, output=False):
+    posts = []
+    images = []
+    videos = []
     try:
-        posts = profile.get_posts()
+        target = IL_GetProfile(IL, profile)
+        for post in target.get_posts():
+            posts.append(post)
+            if post.is_video:
+                videos.append(post)
+            else:
+                images.append(post)
+
+        print("\n")
+        print(f"{cbf.C.OKGREEN}{len(posts)} posts found.{cbf.C.ENDC}")
+        print(f"{cbf.C.OKGREEN}{len(posts) - len(videos)} are images.{cbf.C.ENDC}")
+        print(f"{cbf.C.OKGREEN}{len(posts) - len(images)} are videos.{cbf.C.ENDC}")
+        print("\n")
+
+        if output:            
+            for post in posts:
+                if post.is_video:
+                    print(f"{cbf.C.CVIOLET}{post.caption}{cbf.C.ENDC}\n")
+                else:
+                    print(f"{cbf.C.OKCYAN}{post.caption}{cbf.C.ENDC}\n")
+
         return posts
+
     except Exception as e:
         cbf.returnError(e)
         cbf.saveErrorLog(e)
         return False
 
 
-def IL_DownloadProfilePosts(profile, posts, path):
-    if not path:
-        path = f"Downloaded Posts\\{profile}\\"
+def IL_DownloadProfilePosts(IL, profileUsername, path="Downloaded Posts\\"):
+
+    path = path + profileUsername + "\\"
 
     if not os.path.exists(path):
         os.makedirs(path)
+        print(f"Created directory: {path}")
+
+    posts = IL_GetProfilePosts(IL, profileUsername)
 
     for post in posts:
         try:
-            post.download_post(path)
+            IL.download_post(post, target=profileUsername)
+            print(f"Downloaded post: {post.shortcode}")
         except Exception as e:
             cbf.returnError(e)
             cbf.saveErrorLog(e)
         finally:
             time.sleep(random.randint(1, 3))
 
-    
+
+def IL_GetFollowees(IL, username):
+    follow_list = []
+    count = 0
+    profile = IL_GetProfile(IL, username)
+    try:
+        for followee in profile.get_followers():
+            follow_list.append(followee.username)
+            file = open(f"{profile.username}_followees.txt", "a+")
+            file.write(follow_list[count])
+            file.write("\n")
+            file.close()
+            print(follow_list[count])
+            count = count + 1
+            return follow_list
+
+    except Exception as e:
+        cbf.returnError(e)
+        cbf.saveErrorLog(e)
+        return False
+
+
 #####################################################################################################################
 
 
