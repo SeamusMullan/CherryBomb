@@ -126,24 +126,39 @@ def IL_DownloadProfilePosts(IL, profileUsername, path="Downloaded Posts\\"):
 
 
 def IL_GetFollowees(IL, username):
-    follow_list = []
     count = 0
-    profile = IL_GetProfile(IL, username)
+    theprofile = IL_GetProfile(IL, username)
+    flist = []
     try:
-        for followee in profile.get_followers():
-            follow_list.append(followee.username)
-            file = open(f"{profile.username}_followees.txt", "a+")
-            file.write(follow_list[count])
-            file.write("\n")
-            file.close()
-            print(follow_list[count])
-            count = count + 1
-            return follow_list
+        followees = theprofile.get_followees()
+        for uname in followees:
+            count += 1
+            flist.append(uname)
+        print(f"{cbf.C.OKGREEN}{count} followees found.{cbf.C.ENDC}")
+        return flist
 
     except Exception as e:
         cbf.returnError(e)
         cbf.saveErrorLog(e)
         return False
+
+def IL_GetFollowers(IL, username):
+    count = 0
+    theprofile = IL_GetProfile(IL, username)
+    flist = []
+    try:
+        followees = theprofile.get_followers()
+        for uname in followees:
+            count += 1
+            flist.append(uname)
+        print(f"{cbf.C.OKGREEN}{count} followers found.{cbf.C.ENDC}")
+        return flist
+
+    except Exception as e:
+        cbf.returnError(e)
+        cbf.saveErrorLog(e)
+        return False
+
 
 
 #####################################################################################################################
