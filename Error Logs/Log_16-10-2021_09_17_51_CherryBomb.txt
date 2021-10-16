@@ -1,0 +1,1 @@
+descriptor 'utcoffset' for 'datetime.datetime' objects doesn't apply to a 'str' object

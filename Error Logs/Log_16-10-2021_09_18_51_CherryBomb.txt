@@ -1,0 +1,1 @@
+[Errno 22] Invalid argument: 'theInspire_2021-10-16T09:18:51.270182.jpg'

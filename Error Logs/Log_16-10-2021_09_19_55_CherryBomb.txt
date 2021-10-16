@@ -1,0 +1,1 @@
+unbound method date.strftime() needs an argument
